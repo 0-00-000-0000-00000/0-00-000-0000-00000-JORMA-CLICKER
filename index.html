@@ -4,24 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jorma Clicker</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
+    <div class="container">
         <h1>Jorma Clicker</h1>
-        <img id="jorma-face" src="jorma_face.png" alt="Jorma Face" onclick="clickJorma()">
-        <p>Score: <span id="score">0</span></p>
-        <p>Jormas per Click: <span id="clickValue">1</span></p>
-
-        <h2>Store</h2>
+        <h2>Jormas: <span id="jorma-count">0</span></h2>
+        <h3>Total Clicks: <span id="click-count">0</span></h3>
+        <img id="jorma" src="jorma.png" alt="Jorma" onclick="clickJorma()">
         <div id="store">
-            <button onclick="buyItem('clicker')">Buy Mouse (Cost: 100 Jormas)</button>
-            <button onclick="buyItem('paskapasi')">Buy Paska Pasi (Cost: 250 Jormas)</button>
-            <button onclick="buyItem('pirjo')">Buy Pirjo (Cost: 500 Jormas)</button>
+            <h2>Store</h2>
+            <div id="store-items">
+                <button id="buy-mouse" onclick="buyItem('mouse')">Mouse: 1 Jorma/s (Cost: <span id="mouse-cost">100</span>)</button>
+                <button id="buy-paska-pasi" onclick="buyItem('paska-pasi')">Paska Pasi: 5 Jormas/3.5s (Cost: <span id="paska-pasi-cost">250</span>)</button>
+                <button id="buy-pirjo" onclick="buyItem('pirjo')">Pirjo: 50 Jormas/10s (Cost: <span id="pirjo-cost">500</span>)</button>
+            </div>
+            <h2>Upgrades</h2>
+            <div id="upgrades">
+                <!-- Dynamically populated by JS -->
+            </div>
         </div>
-
-        <h2>Upgrades</h2>
-        <div id="upgrades"></div>
     </div>
     <script src="script.js"></script>
 </body>
