@@ -1,27 +1,36 @@
 body {
     font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #f0f0f0;
-}
-#game-container {
     text-align: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
 }
-#jorma-face {
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+#jorma {
     width: 200px;
-    height: auto;
     cursor: pointer;
     transition: transform 0.1s;
 }
-#jorma-face:active {
-    transform: scale(0.95);
+#jorma:hover {
+    transform: scale(1.1);
+}
+#store {
+    margin-top: 20px;
+}
+#store-items, #upgrades {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 button {
-    padding: 10px 20px;
-    margin: 5px;
+    padding: 10px;
     font-size: 16px;
     cursor: pointer;
     background-color: #4CAF50;
@@ -29,6 +38,10 @@ button {
     border: none;
     border-radius: 5px;
 }
-button:hover {
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+button:hover:not(:disabled) {
     background-color: #45a049;
 }
