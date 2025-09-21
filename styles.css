@@ -15,6 +15,7 @@ body {
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     text-align: center;
     max-width: 400px;
+    width: 90%;
 }
 
 h1, h2 {
@@ -27,6 +28,7 @@ h1, h2 {
     cursor: pointer;
     border-radius: 50%;
     transition: transform 0.1s;
+    user-select: none;
 }
 
 #jorma-face:active {
@@ -45,6 +47,7 @@ button {
     border-radius: 5px;
     cursor: pointer;
     width: 100%;
+    font-size: 16px;
 }
 
 button:disabled {
@@ -58,9 +61,21 @@ button:disabled {
     background: #e7f3ff;
     border-radius: 5px;
     text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.upgrade button {
-    width: auto;
-    float: right;
+#error-message {
+    margin: 10px 0;
+}
+
+@media (max-width: 400px) {
+    #game-container {
+        padding: 10px;
+    }
+    #jorma-face {
+        width: 150px;
+        height: 150px;
+    }
 }
