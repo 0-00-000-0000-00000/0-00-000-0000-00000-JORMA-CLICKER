@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jorma Clicker - Improved Edition</title>
+    <title>Jorma Clicker - Fixed & Improved</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="game-container">
         <h1>Jorma Clicker</h1>
-        <img id="jorma-face" src="jorma_face.png" alt="Jorma Face" onclick="clickJorma()" title="Click me, Jorma!">
+        <img id="jorma-face" src="jorma_face.png" alt="Jorma Face" title="Click me, Jorma!">
         <p>Score: <span id="score">0</span> Jormas</p>
         <p>Jormas per Click: <span id="clickValue">1</span></p>
         <p>Jormas per Second: <span id="cps">0</span></p>
+        <div id="error-message" style="color: red; display: none;"></div>
 
         <h2>Store</h2>
         <div id="store">
