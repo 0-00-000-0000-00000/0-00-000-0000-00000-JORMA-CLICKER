@@ -9,22 +9,27 @@
 <body>
     <div class="container">
         <h1>Jorma Clicker</h1>
-        <h2>Jormas: <span id="jorma-count">0</span></h2>
-        <h3>Total Clicks: <span id="click-count">0</span></h3>
-        <img id="jorma" src="jorma.png" alt="Jorma" onclick="clickJorma()">
-        <div id="store">
-            <h2>Store</h2>
-            <div id="store-items">
-                <button id="buy-mouse" onclick="buyItem('mouse')">Mouse: 1 Jorma/s (Cost: <span id="mouse-cost">100</span>)</button>
-                <button id="buy-paska-pasi" onclick="buyItem('paska-pasi')">Paska Pasi: 5 Jormas/3.5s (Cost: <span id="paska-pasi-cost">250</span>)</button>
-                <button id="buy-pirjo" onclick="buyItem('pirjo')">Pirjo: 50 Jormas/10s (Cost: <span id="pirjo-cost">500</span>)</button>
+        <div class="stats">
+            <div class="stat">
+                <span class="label">Jormas:</span>
+                <span class="value" id="jormas">0</span>
             </div>
-            <h2>Upgrades</h2>
-            <div id="upgrades">
-                <!-- Dynamically populated by JS -->
+            <div class="stat">
+                <span class="label">Per Second:</span>
+                <span class="value" id="jps">0</span>
             </div>
         </div>
+        <div class="clicker">
+            <button id="clickBtn" class="click-button">
+                <img src="https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=Jorma" alt="Jorma" id="jormaImg">
+            </button>
+        </div>
+        <div class="upgrades">
+            <h2>Upgrades</h2>
+            <div id="upgradeList"></div>
+        </div>
     </div>
+    <audio id="clickSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBMLG6f8P"></audio>
     <script src="script.js"></script>
 </body>
 </html>
