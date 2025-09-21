@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jorma Clicker</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Jorma Clicker - Improved Edition</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <div id="game-container">
         <h1>Jorma Clicker</h1>
-        <div class="stats">
-            <div class="stat">
-                <span class="label">Jormas:</span>
-                <span class="value" id="jormas">0</span>
+        <img id="jorma-face" src="jorma_face.png" alt="Jorma Face" onclick="clickJorma()" title="Click me, Jorma!">
+        <p>Score: <span id="score">0</span> Jormas</p>
+        <p>Jormas per Click: <span id="clickValue">1</span></p>
+        <p>Jormas per Second: <span id="cps">0</span></p>
+
+        <h2>Store</h2>
+        <div id="store">
+            <div class="item">
+                <button id="buy-clicker" onclick="buyItem('clicker')">Buy Mouse (Cost: <span id="cost-clicker">100</span> Jormas) - Owned: <span id="count-clicker">0</span></button>
             </div>
-            <div class="stat">
-                <span class="label">Per Second:</span>
-                <span class="value" id="jps">0</span>
+            <div class="item">
+                <button id="buy-paskapasi" onclick="buyItem('paskapasi')">Buy Paska Pasi (Cost: <span id="cost-paskapasi">250</span> Jormas) - Owned: <span id="count-paskapasi">0</span></button>
+            </div>
+            <div class="item">
+                <button id="buy-pirjo" onclick="buyItem('pirjo')">Buy Pirjo (Cost: <span id="cost-pirjo">500</span> Jormas) - Owned: <span id="count-pirjo">0</span></button>
             </div>
         </div>
-        <div class="clicker">
-            <button id="clickBtn" class="click-button">
-                <img src="https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=Jorma" alt="Jorma" id="jormaImg">
-            </button>
-        </div>
-        <div class="upgrades">
-            <h2>Upgrades</h2>
-            <div id="upgradeList"></div>
-        </div>
+
+        <h2>Upgrades</h2>
+        <div id="upgrades"></div>
+
+        <button onclick="resetGame()" style="margin-top: 20px; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 5px;">Reset Game (Lose all progress!)</button>
     </div>
-    <audio id="clickSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBMLG6f8P"></audio>
     <script src="script.js"></script>
 </body>
 </html>
