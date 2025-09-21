@@ -1,47 +1,140 @@
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f0f0f0;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
+
 .container {
-    max-width: 800px;
-    margin: auto;
-    background: white;
+    text-align: center;
+    max-width: 600px;
     padding: 20px;
+}
+
+h1 {
+    color: #BB86FC;
+    text-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
+    margin-bottom: 20px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    background-color: #1E1E1E;
+    padding: 15px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
-#jorma {
-    width: 200px;
-    cursor: pointer;
-    transition: transform 0.1s;
-}
-#jorma:hover {
-    transform: scale(1.1);
-}
-#store {
-    margin-top: 20px;
-}
-#store-items, #upgrades {
+
+.stat {
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
-button {
-    padding: 10px;
-    font-size: 16px;
+
+.label {
+    font-size: 14px;
+    color: #B0B0B0;
+    margin-bottom: 5px;
+}
+
+.value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.clicker {
+    margin: 30px 0;
+}
+
+.click-button {
+    background-color: #333333;
+    border: 2px solid #BB86FC;
+    border-radius: 50%;
     cursor: pointer;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
+    transition: transform 0.1s, box-shadow 0.1s;
+    padding: 10px;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-button:disabled {
-    background-color: #ccc;
+
+.click-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(187, 134, 252, 0.5);
+}
+
+.click-button:active {
+    transform: scale(0.95);
+}
+
+#jormaImg {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.upgrades {
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.upgrades h2 {
+    color: #BB86FC;
+    margin-top: 0;
+}
+
+.upgrade {
+    background-color: #2D2D2D;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.upgrade:hover {
+    background-color: #404040;
+}
+
+.upgrade button {
+    background-color: #03DAC6;
+    color: #000;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.upgrade button:disabled {
+    background-color: #666;
     cursor: not-allowed;
 }
-button:hover:not(:disabled) {
-    background-color: #45a049;
+
+.particles {
+    position: absolute;
+    pointer-events: none;
+    font-size: 24px;
+    color: #BB86FC;
+    animation: float 1s ease-out forwards;
+}
+
+@keyframes float {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-50px) scale(0.5); }
 }
