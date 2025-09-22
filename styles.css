@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #1a1a1a; /* Dark background */
-    color: #fff;
+    background-color: #121212;
+    color: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,23 +10,22 @@ body {
 }
 
 #game-container {
-    background: #2c2c2c; /* Darker container */
+    background: #1e1e1e;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
     text-align: center;
-    max-width: 400px;
+    max-width: 500px;
     width: 90%;
 }
 
 h1, h2 {
-    color: #fff;
+    color: #ffffff;
 }
 
 #jorma-container {
     position: relative;
-    width: 200px;
-    height: 200px;
+    display: inline-block;
     margin: 0 auto;
 }
 
@@ -36,90 +35,74 @@ h1, h2 {
     cursor: pointer;
     border-radius: 50%;
     transition: transform 0.1s;
+    user-select: none;
     position: relative;
-    z-index: 2;
-}
-
-#jorma-face.gang-jorma {
-    width: 240px;
-    height: 240px;
-}
-
-#badass-text {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ff0;
-    font-weight: bold;
-    font-size: 18px;
-    text-shadow: 2px 2px 4px #000;
-    z-index: 3;
+    z-index: 1;
 }
 
 #jorma-face:active {
     transform: scale(0.95);
 }
 
-#cursor-circle, #cursor-circle-outer {
+#badass-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff0000;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 2px 2px #000000;
+    z-index: 2;
+}
+
+#assets-container {
     position: absolute;
     top: 0;
     left: 0;
-    width: 200px;
-    height: 200px;
-    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
 }
 
-#cursor-circle-outer {
-    transform: scale(1.2); /* Outer circle larger */
-}
-
-.cursor {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    animation: clickAnimation 0.5s infinite;
-}
-
-@keyframes clickAnimation {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(0.8); }
-}
-
-#paska-pasi-container {
-    position: absolute;
-    bottom: -40px;
-    left: 0;
-    right: 0;
+#ground-container {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    margin: 10px 0;
 }
 
-.paska-pasi {
+.clicker-img {
+    position: absolute;
     width: 30px;
     height: 30px;
+    animation: clickAnim 1s infinite ease-in-out;
+    z-index: 4;
+}
+
+@keyframes clickAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.9) translateY(5px); }
+    100% { transform: scale(1); }
+}
+
+.paskapasi-img {
+    width: 40px;
+    height: 40px;
     margin: 5px;
 }
 
-#pirjo-container {
+.pirjo-img {
     position: absolute;
-    top: 0;
-    left: -100px;
-    width: 180px;
-    height: 180px;
+    animation: hitAnim 2s infinite;
+    z-index: 5;
 }
 
-.pirjo {
-    width: 100%;
-    height: 100%;
-    animation: hitAnimation 1s infinite;
-}
-
-@keyframes hitAnimation {
-    0%, 80% { transform: translateX(0); }
-    90% { transform: translateX(20px); }
-    100% { transform: translateX(0); }
+@keyframes hitAnim {
+    0% { transform: scaleX(-1) translateX(0); }
+    50% { transform: scaleX(-1) translateX(20px); }
+    100% { transform: scaleX(-1) translateX(0); }
 }
 
 .item {
@@ -138,64 +121,52 @@ button {
 }
 
 button:disabled {
-    background: #555; /* Grey when not affordable */
+    background: #555555;
     cursor: not-allowed;
 }
 
 .upgrades-scroll {
-    max-height: 150px;
     overflow-y: auto;
-    border: 1px solid #444;
-    border-radius: 5px;
+    max-height: 200px;
     padding: 10px;
+    background: #2a2a2a;
+    border-radius: 5px;
 }
 
 .upgrade {
     margin: 10px 0;
     padding: 10px;
-    background: #3a3a3a;
+    background: #333333;
     border-radius: 5px;
+    text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.upgrade-cost.red {
-    color: #ff4444;
+.cost-span {
+    font-weight: bold;
 }
 
-.upgrade-cost.green {
-    color: #4CAF50;
+.reset-button {
+    margin-top: 20px;
+    padding: 10px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
 
 #error-message {
     margin: 10px 0;
 }
 
-.reset-button {
-    margin-top: 20px;
-    background: #ff4444;
-}
-
-@media (max-width: 400px) {
+@media (max-width: 500px) {
     #game-container {
         padding: 10px;
-    }
-    #jorma-container {
-        width: 150px;
-        height: 150px;
     }
     #jorma-face {
         width: 150px;
         height: 150px;
-    }
-    #jorma-face.gang-jorma {
-        width: 180px;
-        height: 180px;
-    }
-    #pirjo-container {
-        width: 135px;
-        height: 135px;
-        left: -80px;
     }
 }
