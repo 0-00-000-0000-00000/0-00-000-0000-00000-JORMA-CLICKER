@@ -2,29 +2,28 @@
 let score = 0;
 let clickValue = 1;
 let cps = 0;
-let gangJormaMultiplier = 1;
 let items = {
     clicker: { count: 0, baseCost: 100, cps: 1 },
     paskapasi: { count: 0, baseCost: 250, cps: 5 },
     pirjo: { count: 0, baseCost: 500, cps: 50 },
-    gangjorma: { count: 0, baseCost: 10000, cps: 0, max: 1 }
+    gangjorma: { count: 0, baseCost: 10000, cps: 0 } // No CPS, one-time boost
 };
 let upgrades = [];
 let autoSaveInterval;
 let autoProdInterval;
-let lastUpdate = Date.now();
 
-// Available upgrades
+// Available upgrades (added more)
 const availableUpgrades = [
     { name: 'Double Clicks', cost: 1000, condition: () => clickValue === 1, effect: () => { clickValue = 2; } },
     { name: 'Triple Clicks', cost: 5000, condition: () => clickValue === 2, effect: () => { clickValue = 3; } },
+    { name: 'Quad Clicks', cost: 10000, condition: () => clickValue === 3, effect: () => { clickValue = 4; } }, // New
     { name: 'Clicker Boost', cost: 2000, condition: () => items.clicker.count >= 5, effect: () => { items.clicker.cps *= 2; updateCPS(); } },
+    { name: 'Super Clicker Boost', cost: 15000, condition: () => items.clicker.count >= 10, effect: () => { items.clicker.cps *= 3; updateCPS(); } }, // New
     { name: 'Paska Efficiency', cost: 10000, condition: () => items.paskapasi.count >= 3, effect: () => { items.paskapasi.cps *= 1.5; updateCPS(); } },
+    { name: 'Paska Mega Efficiency', cost: 30000, condition: () => items.paskapasi.count >= 5, effect: () => { items.paskapasi.cps *= 2; updateCPS(); } }, // New
     { name: 'Pirjo Mastery', cost: 50000, condition: () => items.pirjo.count >= 1, effect: () => { items.pirjo.cps *= 2; updateCPS(); } },
-    { name: 'Mega Clicks', cost: 25000, condition: () => clickValue === 3, effect: () => { clickValue = 5; } },
-    { name: 'Auto Clicker', cost: 100000, condition: () => items.clicker.count >= 10, effect: () => { items.clicker.cps *= 3; updateCPS(); } },
-    { name: 'Paska Power', cost: 250000, condition: () => items.paskapasi.count >= 5, effect: () => { items.paskapasi.cps *= 2; updateCPS(); } },
-    { name: 'Pirjo Frenzy', cost: 500000, condition: () => items.pirjo.count >= 3, effect: () => { items.pirjo.cps *= 2.5; updateCPS(); } }
+    { name: 'Pirjo Ultimate', cost: 100000, condition: () => items.pirjo.count >= 3, effect: () => { items.pirjo.cps *= 3; updateCPS(); } }, // New
+    { name: 'Global Production Doubler', cost: 200000, condition: () => score >= 100000, effect: () => { Object.values(items).forEach(item => item.cps *= 2); updateCPS(); } } // New, global
 ];
 
 // Initialize game
@@ -33,44 +32,18 @@ function init() {
         loadGame();
         updateDisplay();
         bindClickEvent();
-        updateVisuals();
         startAutoProduction();
         startAutoSave();
-        window.addEventListener('focus', handleOfflineProgress);
     } catch (e) {
         showError('Failed to initialize game: ' + e.message);
         console.error('Init error:', e);
     }
 }
 
-// Handle offline progress
-function handleOfflineProgress() {
-    try {
-        const now = Date.now();
-        const secondsPassed = (now - lastUpdate) / 1000;
-        const earned = cps * secondsPassed;
-        score += earned;
-        lastUpdate = now;
-        updateDisplay();
-        saveGame();
-        showError(`Earned ${Math.floor(earned)} Jormas while offline!`);
-    } catch (e) {
-        showError('Failed to process offline progress: ' + e.message);
-        console.error('Offline progress error:', e);
-    }
-}
-
 // Bind click event
 function bindClickEvent() {
     const jormaFace = document.getElementById('jorma-face');
-    jormaFace.addEventListener('click', () => {
-        try {
-            clickJorma();
-        } catch (e) {
-            showError('Click failed: ' + e.message);
-            console.error('Click error:', e);
-        }
-    });
+    jormaFace.addEventListener('click', clickJorma);
 }
 
 // Load game
@@ -87,11 +60,9 @@ function loadGame() {
                 pirjo: { ...items.pirjo, ...data.items?.pirjo },
                 gangjorma: { ...items.gangjorma, ...data.items?.gangjorma }
             };
-            gangJormaMultiplier = items.gangjorma.count > 0 ? 4 : 1;
             upgrades = data.upgrades || [];
             applyUpgrades();
-            lastUpdate = data.lastUpdate || Date.now();
-            handleOfflineProgress();
+            if (items.gangjorma.count > 0) applyGangJorma();
         }
     } catch (e) {
         showError('Failed to load game: ' + e.message);
@@ -106,8 +77,7 @@ function saveGame() {
             score,
             clickValue,
             items,
-            upgrades,
-            lastUpdate: Date.now()
+            upgrades
         };
         localStorage.setItem('jormaClickerSave', JSON.stringify(data));
     } catch (e) {
@@ -116,7 +86,7 @@ function saveGame() {
     }
 }
 
-// Auto-save
+// Start auto-save
 function startAutoSave() {
     if (autoSaveInterval) clearInterval(autoSaveInterval);
     autoSaveInterval = setInterval(saveGame, 10000);
@@ -131,9 +101,24 @@ function applyUpgrades() {
         });
         updateCPS();
     } catch (e) {
-        showError('Failed to apply upgrades: ' + e.message);
         console.error('Upgrade apply error:', e);
     }
+}
+
+// Apply Gang Jorma effect
+function applyGangJorma() {
+    Object.keys(items).forEach(type => {
+        if (type !== 'gangjorma') items[type].cps *= 4;
+    });
+    updateCPS();
+    const jormaFace = document.getElementById('jorma-face');
+    jormaFace.style.width = '300px';
+    jormaFace.style.height = '300px';
+    document.getElementById('badass-text').style.display = 'block';
+    document.getElementById('buy-gangjorma').style.display = 'none'; // Hide button after buy
+    const jormaContainer = document.getElementById('jorma-container');
+    jormaContainer.style.width = '300px';
+    jormaContainer.style.height = '300px';
 }
 
 // Update display
@@ -143,8 +128,8 @@ function updateDisplay() {
         document.getElementById('clickValue').innerText = clickValue;
         updateCPS();
         updateStore();
-        updateVisuals();
         renderUpgrades();
+        renderAssets();
     } catch (e) {
         showError('Failed to update display: ' + e.message);
         console.error('Display error:', e);
@@ -153,196 +138,157 @@ function updateDisplay() {
 
 // Update CPS
 function updateCPS() {
-    try {
-        cps = Object.values(items).reduce((total, item) => {
-            return total + (item.cps * item.count * (item.max ? 1 : gangJormaMultiplier));
-        }, 0);
-        document.getElementById('cps').innerText = cps.toFixed(1);
-    } catch (e) {
-        showError('Failed to update CPS: ' + e.message);
-        console.error('CPS error:', e);
-    }
+    cps = Object.values(items).reduce((total, item) => total + (item.cps * item.count), 0);
+    document.getElementById('cps').innerText = cps.toFixed(1);
 }
 
 // Update store
 function updateStore() {
-    try {
-        Object.keys(items).forEach(type => {
-            const item = items[type];
-            const cost = item.max && item.count >= item.max ? 'MAX' : Math.floor(item.baseCost * Math.pow(1.15, item.count));
-            item.cost = cost;
-            document.getElementById(`count-${type}`).innerText = item.count;
-            document.getElementById(`cost-${type}`).innerText = cost;
-            const button = document.getElementById(`buy-${type}`);
-            button.disabled = score < cost || (item.max && item.count >= item.max);
-        });
-    } catch (e) {
-        showError('Failed to update store: ' + e.message);
-        console.error('Store error:', e);
-    }
+    Object.keys(items).forEach(type => {
+        const item = items[type];
+        const cost = Math.floor(item.baseCost * Math.pow(1.15, item.count));
+        item.cost = cost;
+        document.getElementById(`count-${type}`).innerText = item.count;
+        document.getElementById(`cost-${type}`).innerText = cost;
+        const button = document.getElementById(`buy-${type}`);
+        if (score >= cost && (type !== 'gangjorma' || item.count === 0)) {
+            button.disabled = false;
+            button.style.background = '#4CAF50'; // Green when affordable
+        } else {
+            button.disabled = true;
+            button.style.background = '#555555'; // Grey when not
+        }
+    });
 }
 
 // Render upgrades
 function renderUpgrades() {
-    try {
-        const container = document.getElementById('upgrades');
-        container.innerHTML = '';
-        availableUpgrades.forEach(upgrade => {
-            const isPurchased = upgrades.includes(upgrade.name);
-            const isAvailable = upgrade.condition() && !isPurchased;
-            const isVisible = isAvailable && (upgrade.cost <= 100000 || score >= upgrade.cost * 0.9);
-            if (isVisible || isPurchased) {
-                const div = document.createElement('div');
-                div.className = 'upgrade';
-                const costClass = isPurchased ? '' : score >= upgrade.cost ? 'green' : 'red';
-                div.innerHTML = `
-                    <span><strong>${upgrade.name}</strong> - Cost: <span class="upgrade-cost ${costClass}">${upgrade.cost}</span> Jormas</span>
-                    ${isPurchased ? '<span style="color: green;"> (Purchased)</span>' : ''}
-                    ${isAvailable && !isPurchased ? `<button onclick="buyUpgrade('${upgrade.name}')">Buy</button>` : ''}
-                `;
-                container.appendChild(div);
-            }
-        });
-    } catch (e) {
-        showError('Failed to render upgrades: ' + e.message);
-        console.error('Upgrades render error:', e);
-    }
+    const container = document.getElementById('upgrades');
+    container.innerHTML = '';
+    availableUpgrades.forEach(upgrade => {
+        const isPurchased = upgrades.includes(upgrade.name);
+        const isAvailable = upgrade.condition() && !isPurchased;
+        const isClose = score >= upgrade.cost / 2; // "Close" for hiding expensive ones
+        if ((isAvailable || isPurchased) && (upgrade.cost <= 10000 || isClose)) {
+            const div = document.createElement('div');
+            div.className = 'upgrade';
+            const costColor = score >= upgrade.cost ? 'green' : 'red';
+            div.innerHTML = `
+                <span><strong>${upgrade.name}</strong> - Cost: <span class="cost-span" style="color: ${costColor};">${upgrade.cost}</span> Jormas</span>
+                ${isPurchased ? '<span style="color: green;"> (Purchased)</span>' : ''}
+                ${isAvailable ? `<button onclick="buyUpgrade('${upgrade.name}')">Buy</button>` : ''}
+            `;
+            container.appendChild(div);
+        }
+    });
 }
 
 // Buy upgrade
 function buyUpgrade(name) {
-    try {
-        const upgrade = availableUpgrades.find(u => u.name === name);
-        if (upgrade && score >= upgrade.cost && upgrade.condition() && !upgrades.includes(upgrade.name)) {
-            score -= upgrade.cost;
-            upgrades.push(name);
-            upgrade.effect();
-            saveGame();
-            updateDisplay();
-        } else {
-            showError('Cannot buy upgrade: insufficient Jormas or conditions not met.');
-        }
-    } catch (e) {
-        showError('Failed to buy upgrade: ' + e.message);
-        console.error('Upgrade buy error:', e);
+    const upgrade = availableUpgrades.find(u => u.name === name);
+    if (upgrade && score >= upgrade.cost && upgrade.condition() && !upgrades.includes(upgrade.name)) {
+        score -= upgrade.cost;
+        upgrades.push(name);
+        upgrade.effect();
+        saveGame();
+        updateDisplay();
+    } else {
+        showError('Cannot buy upgrade.');
     }
 }
 
 // Click Jorma
 function clickJorma() {
-    try {
-        score += clickValue;
-        document.getElementById('score').innerText = Math.floor(score);
-        saveGame();
-        updateDisplay();
-        console.log('Clicked Jorma! Score:', score);
-    } catch (e) {
-        showError('Click failed: ' + e.message);
-        console.error('Click error:', e);
-    }
+    score += clickValue;
+    document.getElementById('score').innerText = Math.floor(score);
+    saveGame();
+    updateDisplay();
+    console.log('Clicked Jorma! Score:', score);
 }
 
 // Buy item
 function buyItem(type) {
-    try {
-        const item = items[type];
-        const cost = item.cost;
-        if (score >= cost && (!item.max || item.count < item.max)) {
-            score -= cost;
-            item.count++;
-            if (type === 'gangjorma') gangJormaMultiplier = 4;
-            updateDisplay();
-            saveGame();
-            startAutoProduction();
-        } else {
-            showError('Not enough Jormas or max purchased for ' + type + '!');
-        }
-    } catch (e) {
-        showError('Failed to buy item: ' + e.message);
-        console.error('Buy item error:', e);
-    }
-}
-
-// Update visuals
-function updateVisuals() {
-    try {
-        // Gang Jorma
-        const jormaFace = document.getElementById('jorma-face');
-        const badassText = document.getElementById('badass-text');
-        if (items.gangjorma.count > 0) {
-            jormaFace.classList.add('gang-jorma');
-            badassText.style.display = 'block';
-        } else {
-            jormaFace.classList.remove('gang-jorma');
-            badassText.style.display = 'none';
-        }
-
-        // Clicker cursors
-        const cursorCircle = document.getElementById('cursor-circle');
-        const cursorCircleOuter = document.getElementById('cursor-circle-outer');
-        cursorCircle.innerHTML = '';
-        cursorCircleOuter.innerHTML = '';
-        if (items.clicker.count > 0) {
-            const count = Math.min(items.clicker.count, 10); // Max 10 cursors per circle
-            for (let i = 0; i < count; i++) {
-                const cursor = document.createElement('img');
-                cursor.src = 'cursor.png';
-                cursor.className = 'cursor';
-                cursor.style.transform = `rotate(${i * 360 / count}deg) translate(100px) rotate(-${i * 360 / count}deg)`;
-                cursorCircle.appendChild(cursor);
-
-                if (items.clicker.count > 10) {
-                    const cursorOuter = document.createElement('img');
-                    cursorOuter.src = 'cursor.png';
-                    cursorOuter.className = 'cursor';
-                    cursorOuter.style.transform = `rotate(${i * 360 / count}deg) translate(120px) rotate(-${i * 360 / count}deg)`;
-                    cursorCircleOuter.appendChild(cursorOuter);
-                }
-            }
-        }
-
-        // Paska Pasi
-        const paskaContainer = document.getElementById('paska-pasi-container');
-        paskaContainer.innerHTML = '';
-        for (let i = 0; i < items.paskapasi.count; i++) {
-            const img = document.createElement('img');
-            img.src = 'Paska-Pasi.png';
-            img.className = 'paska-pasi';
-            paskaContainer.appendChild(img);
-        }
-
-        // Pirjo
-        const pirjoContainer = document.getElementById('pirjo-container');
-        pirjoContainer.innerHTML = '';
-        if (items.pirjo.count > 0) {
-            const img = document.createElement('img');
-            img.src = 'Pirjo.png';
-            img.className = 'pirjo';
-            pirjoContainer.appendChild(img);
-        }
-    } catch (e) {
-        showError('Failed to update visuals: ' + e.message);
-        console.error('Visuals error:', e);
+    const item = items[type];
+    const cost = item.cost;
+    if (score >= cost && (type !== 'gangjorma' || item.count === 0)) {
+        score -= cost;
+        item.count++;
+        if (type === 'gangjorma') applyGangJorma();
+        updateDisplay();
+        saveGame();
+        startAutoProduction();
+    } else {
+        showError('Not enough Jormas!');
     }
 }
 
 // Start auto-production
 function startAutoProduction() {
-    try {
-        if (autoProdInterval) clearInterval(autoProdInterval);
-        autoProdInterval = setInterval(() => {
-            let produced = 0;
-            Object.values(items).forEach(item => {
-                produced += item.cps * item.count * (item.max ? 1 : gangJormaMultiplier) / 10;
-            });
-            score += produced;
-            lastUpdate = Date.now();
-            document.getElementById('score').innerText = Math.floor(score);
-            updateDisplay();
-        }, 100);
-    } catch (e) {
-        showError('Failed to start auto-production: ' + e.message);
-        console.error('Auto-production error:', e);
+    if (autoProdInterval) clearInterval(autoProdInterval);
+    autoProdInterval = setInterval(() => {
+        let produced = 0;
+        Object.values(items).forEach(item => {
+            produced += item.cps * item.count / 10;
+        });
+        score += produced;
+        document.getElementById('score').innerText = Math.floor(score);
+        updateDisplay();
+    }, 100);
+}
+
+// Render dynamic assets (images/animations)
+function renderAssets() {
+    const jormaFace = document.getElementById('jorma-face');
+    const jormaSize = parseFloat(getComputedStyle(jormaFace).width);
+    const jormaContainer = document.getElementById('jorma-container');
+    jormaContainer.style.width = jormaSize + 'px';
+    jormaContainer.style.height = jormaSize + 'px';
+    const assetsContainer = document.getElementById('assets-container');
+    assetsContainer.innerHTML = '';
+
+    const centerX = jormaSize / 2;
+    const centerY = jormaSize / 2;
+    const radiusBase = jormaSize / 2 + 60; // Increased distance from Jorma edge
+    const perCircle = 10;
+
+    // Clickers (cursor.png in circles)
+    const circles = Math.ceil(items.clicker.count / perCircle);
+    for (let i = 0; i < items.clicker.count; i++) {
+        const circleIndex = Math.floor(i / perCircle);
+        const angle = (i % perCircle) / perCircle * 2 * Math.PI; // Radians
+        const radius = radiusBase + circleIndex * 60; // Wider spacing for outer circles
+        const x = centerX + radius * Math.cos(angle) - 15;
+        const y = centerY + radius * Math.sin(angle) - 15;
+        const img = document.createElement('img');
+        img.src = 'cursor.png';
+        img.className = 'clicker-img';
+        img.style.left = x + 'px';
+        img.style.top = y + 'px';
+        img.style.animationDelay = (i * 0.1) + 's'; // Stagger
+        assetsContainer.appendChild(img);
+    }
+
+    // Pirjo (on left, animated hit)
+    if (items.pirjo.count > 0) {
+        const pirjoSize = jormaSize * 0.8;
+        const img = document.createElement('img');
+        img.src = 'pirjo.png';
+        img.className = 'pirjo-img';
+        img.style.width = pirjoSize + 'px';
+        img.style.height = pirjoSize + 'px';
+        img.style.left = `-${jormaSize * 1.3}px`; // Further left for distance
+        img.style.top = `${(jormaSize - pirjoSize) / 2}px`; // Centered vertically
+        assetsContainer.appendChild(img);
+    }
+
+    // Paska Pasi (under text, in ground container)
+    const groundContainer = document.getElementById('ground-container');
+    groundContainer.innerHTML = '';
+    for (let i = 0; i < items.paskapasi.count; i++) {
+        const img = document.createElement('img');
+        img.src = 'paska-pasi.png';
+        img.className = 'paskapasi-img';
+        groundContainer.appendChild(img);
     }
 }
 
@@ -356,14 +302,9 @@ function showError(message) {
 
 // Reset game
 function resetGame() {
-    try {
-        if (confirm('Are you sure? This will delete all progress!')) {
-            localStorage.removeItem('jormaClickerSave');
-            location.reload();
-        }
-    } catch (e) {
-        showError('Failed to reset game: ' + e.message);
-        console.error('Reset error:', e);
+    if (confirm('Are you sure?')) {
+        localStorage.removeItem('jormaClickerSave');
+        location.reload();
     }
 }
 
