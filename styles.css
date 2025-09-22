@@ -66,11 +66,17 @@ h1, h2 {
     z-index: 3;
 }
 
-#ground-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 10px 0;
+.circle-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .clicker-img {
@@ -88,8 +94,8 @@ h1, h2 {
 }
 
 .paskapasi-img {
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
     margin: 5px;
 }
 
@@ -158,6 +164,13 @@ button:disabled {
 }
 
 #error-message {
+    margin: 10px 0;
+}
+
+#ground-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
     margin: 10px 0;
 }
 
