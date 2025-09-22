@@ -246,7 +246,7 @@ function renderAssets() {
     const assetsContainer = document.getElementById('assets-container');
     assetsContainer.innerHTML = '';
 
-    const radiusBase = jormaSize / 2 + 60; // Distance from Jorma edge
+    const radiusBase = jormaSize / 2 + 30; // Reduced distance from Jorma edge
     const perCircle = 10;
     const circles = Math.ceil(items.clicker.count / perCircle);
 
@@ -254,10 +254,11 @@ function renderAssets() {
     for (let c = 0; c < circles; c++) {
         const circleDiv = document.createElement('div');
         circleDiv.className = 'circle-container';
-        circleDiv.style.width = (radiusBase * 2 + c * 120) + 'px'; // Diameter for circle
-        circleDiv.style.height = circleDiv.style.width;
+        const circleDiameter = (radiusBase * 2) + (c * 80); // Reduced spacing for closer orbits
+        circleDiv.style.width = circleDiameter + 'px';
+        circleDiv.style.height = circleDiameter + 'px';
         circleDiv.style.animationDelay = (c * 2) + 's'; // Stagger circle starts
-        const radius = radiusBase + c * 60; // Radius for this circle
+        const radius = radiusBase + (c * 40); // Reduced increment for tighter circles
         const numInCircle = Math.min(perCircle, items.clicker.count - c * perCircle);
         for (let i = 0; i < numInCircle; i++) {
             const angle = (i / numInCircle) * 360;
@@ -266,8 +267,8 @@ function renderAssets() {
             const img = document.createElement('img');
             img.src = 'MOUSE.PNG';
             img.className = 'clicker-img';
-            img.style.left = (50 + x) + '%'; // Relative to circle div
-            img.style.top = (50 + y) + '%';
+            img.style.left = (50 + (x / circleDiameter * 100)) + '%'; // Normalized to %
+            img.style.top = (50 + (y / circleDiameter * 100)) + '%';
             img.style.transform = 'translate(-50%, -50%)';
             img.style.animationDelay = (i * 0.1) + 's'; // Stagger click anim
             circleDiv.appendChild(img);
@@ -283,7 +284,7 @@ function renderAssets() {
         img.className = 'pirjo-img';
         img.style.width = pirjoSize + 'px';
         img.style.height = pirjoSize + 'px';
-        img.style.left = `-${jormaSize * 1.3}px`; // Further left for distance
+        img.style.left = `-${jormaSize + 60}px`; // Adjusted base left (overridden by CSS media)
         img.style.top = `${(jormaSize - pirjoSize) / 2}px`; // Centered vertically
         assetsContainer.appendChild(img);
     }
