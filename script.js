@@ -246,33 +246,40 @@ function renderAssets() {
     const assetsContainer = document.getElementById('assets-container');
     assetsContainer.innerHTML = '';
 
-    const centerX = jormaSize / 2;
-    const centerY = jormaSize / 2;
-    const radiusBase = jormaSize / 2 + 60; // Increased distance from Jorma edge
+    const radiusBase = jormaSize / 2 + 60; // Distance from Jorma edge
     const perCircle = 10;
-
-    // Clickers (cursor.png in circles)
     const circles = Math.ceil(items.clicker.count / perCircle);
-    for (let i = 0; i < items.clicker.count; i++) {
-        const circleIndex = Math.floor(i / perCircle);
-        const angle = (i % perCircle) / perCircle * 2 * Math.PI; // Radians
-        const radius = radiusBase + circleIndex * 60; // Wider spacing for outer circles
-        const x = centerX + radius * Math.cos(angle) - 15;
-        const y = centerY + radius * Math.sin(angle) - 15;
-        const img = document.createElement('img');
-        img.src = 'cursor.png';
-        img.className = 'clicker-img';
-        img.style.left = x + 'px';
-        img.style.top = y + 'px';
-        img.style.animationDelay = (i * 0.1) + 's'; // Stagger
-        assetsContainer.appendChild(img);
+
+    // Clickers: Create rotating circles
+    for (let c = 0; c < circles; c++) {
+        const circleDiv = document.createElement('div');
+        circleDiv.className = 'circle-container';
+        circleDiv.style.width = (radiusBase * 2 + c * 120) + 'px'; // Diameter for circle
+        circleDiv.style.height = circleDiv.style.width;
+        circleDiv.style.animationDelay = (c * 2) + 's'; // Stagger circle starts
+        const radius = radiusBase + c * 60; // Radius for this circle
+        const numInCircle = Math.min(perCircle, items.clicker.count - c * perCircle);
+        for (let i = 0; i < numInCircle; i++) {
+            const angle = (i / numInCircle) * 360;
+            const x = (radius - 15) * Math.cos(angle * Math.PI / 180);
+            const y = (radius - 15) * Math.sin(angle * Math.PI / 180);
+            const img = document.createElement('img');
+            img.src = 'MOUSE.PNG';
+            img.className = 'clicker-img';
+            img.style.left = (50 + x) + '%'; // Relative to circle div
+            img.style.top = (50 + y) + '%';
+            img.style.transform = 'translate(-50%, -50%)';
+            img.style.animationDelay = (i * 0.1) + 's'; // Stagger click anim
+            circleDiv.appendChild(img);
+        }
+        assetsContainer.appendChild(circleDiv);
     }
 
     // Pirjo (on left, animated hit)
     if (items.pirjo.count > 0) {
         const pirjoSize = jormaSize * 0.8;
         const img = document.createElement('img');
-        img.src = 'pirjo.png';
+        img.src = 'PIRJO.JPG';
         img.className = 'pirjo-img';
         img.style.width = pirjoSize + 'px';
         img.style.height = pirjoSize + 'px';
