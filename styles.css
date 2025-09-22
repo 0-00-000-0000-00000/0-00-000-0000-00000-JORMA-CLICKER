@@ -1,97 +1,81 @@
-/* style.css */
 body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     margin: 0;
+}
+
+#game-container {
+    background: white;
     padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
 }
 
-#game {
-    max-width: 800px;
-    margin: 0 auto;
+h1, h2 {
+    color: #333;
 }
 
-#jorma-container {
-    position: relative;
-    display: inline-block;
-    margin: 20px;
-}
-
-#jorma {
+#jorma-face {
+    width: 200px;
+    height: 200px;
     cursor: pointer;
-    transition: transform 0.1s;
     border-radius: 50%;
+    transition: transform 0.1s;
+    user-select: none;
 }
 
-#jorma:active {
+#jorma-face:active {
     transform: scale(0.95);
 }
 
-#pirjo {
-    transition: transform 0.5s;
+.item {
+    margin: 10px 0;
 }
 
-#pirjo.hitting {
-    transform: scaleX(-1) translateX(200px);
-}
-
-.scrolling-frame {
-    height: 300px;
-    overflow-y: scroll;
-    border: 1px solid #ccc;
-    margin: 10px;
+button {
     padding: 10px;
-    background: white;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
 }
 
-ul {
-    list-style: none;
-    padding: 0;
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 }
 
-li {
+.upgrade {
     margin: 10px 0;
     padding: 10px;
-    border: 1px solid #ddd;
+    background: #e7f3ff;
+    border-radius: 5px;
+    text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.cost {
-    font-weight: bold;
+#error-message {
+    margin: 10px 0;
 }
 
-.cost.affordable {
-    color: green;
-}
-
-.cost.not-affordable {
-    color: red;
-}
-
-.clicker {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    transition: all 0.3s;
-    z-index: 10;
-}
-
-.clicker.clicking {
-    transform: scale(1.2);
-}
-
-.paska-pasi {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    bottom: -30px;
-    z-index: 5;
-}
-
-#info {
-    font-size: 18px;
-    margin: 20px;
+@media (max-width: 400px) {
+    #game-container {
+        padding: 10px;
+    }
+    #jorma-face {
+        width: 150px;
+        height: 150px;
+    }
 }
