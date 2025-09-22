@@ -85,6 +85,7 @@ h1, h2 {
     height: 30px;
     animation: clickAnim 1s infinite ease-in-out;
     z-index: 4;
+    transform-origin: center;
 }
 
 @keyframes clickAnim {
@@ -101,13 +102,13 @@ h1, h2 {
 
 .pirjo-img {
     position: absolute;
-    animation: hitAnim 2s infinite;
     z-index: 5;
+    animation: hitAnim 10s infinite;
 }
 
 @keyframes hitAnim {
-    0% { transform: scaleX(-1) translateX(0); }
-    50% { transform: scaleX(-1) translateX(20px); }
+    0%, 90% { transform: scaleX(-1) translateX(0); }
+    95% { transform: scaleX(-1) translateX(20px); }
     100% { transform: scaleX(-1) translateX(0); }
 }
 
@@ -174,12 +175,49 @@ button:disabled {
     margin: 10px 0;
 }
 
+/* Desktop/PC support (default) */
+@media (min-width: 501px) {
+    #jorma-face {
+        width: 200px;
+        height: 200px;
+    }
+    .pirjo-img {
+        left: -260px; /* Adjusted for desktop */
+        top: 20px;
+    }
+    .clicker-img {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* Mobile support */
 @media (max-width: 500px) {
     #game-container {
         padding: 10px;
+        max-width: 100%;
     }
     #jorma-face {
         width: 150px;
         height: 150px;
+    }
+    .pirjo-img {
+        left: -200px; /* Closer on mobile to stay on screen */
+        top: 15px;
+        width: 120px;
+        height: 120px;
+    }
+    .clicker-img {
+        width: 25px;
+        height: 25px;
+    }
+    #badass-text {
+        font-size: 18px;
+    }
+    h1 {
+        font-size: 24px;
+    }
+    button {
+        font-size: 14px;
     }
 }
