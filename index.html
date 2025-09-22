@@ -3,35 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jorma Clicker - Fixed & Improved</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Jorma Clicker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
+    <div id="game">
         <h1>Jorma Clicker</h1>
-        <img id="jorma-face" src="jorma_face.png" alt="Jorma Face" title="Click me, Jorma!">
-        <p>Score: <span id="score">0</span> Jormas</p>
-        <p>Jormas per Click: <span id="clickValue">1</span></p>
-        <p>Jormas per Second: <span id="cps">0</span></p>
-        <div id="error-message" style="color: red; display: none;"></div>
-
-        <h2>Store</h2>
-        <div id="store">
-            <div class="item">
-                <button id="buy-clicker" onclick="buyItem('clicker')">Buy Mouse (Cost: <span id="cost-clicker">100</span> Jormas) - Owned: <span id="count-clicker">0</span></button>
-            </div>
-            <div class="item">
-                <button id="buy-paskapasi" onclick="buyItem('paskapasi')">Buy Paska Pasi (Cost: <span id="cost-paskapasi">250</span> Jormas) - Owned: <span id="count-paskapasi">0</span></button>
-            </div>
-            <div class="item">
-                <button id="buy-pirjo" onclick="buyItem('pirjo')">Buy Pirjo (Cost: <span id="cost-pirjo">500</span> Jormas) - Owned: <span id="count-pirjo">0</span></button>
-            </div>
+        <div id="jorma-container">
+            <img id="jorma" src="JORMA-FACE.PNG" alt="Jorma Face" width="200" height="200">
+            <div id="badass-text" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px black;">BADASS JORMA</div>
+            <div id="paska-pasis"></div>
+            <img id="pirjo" src="PIRJO.PNG" alt="Pirjo" width="180" height="180" style="display: none; position: absolute; top: 0; left: -200px;">
         </div>
-
-        <h2>Upgrades</h2>
-        <div id="upgrades"></div>
-
-        <button onclick="resetGame()" style="margin-top: 20px; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 5px;">Reset Game (Lose all progress!)</button>
+        <div id="clickers"></div>
+        <div id="info">
+            <p>Points: <span id="points">0</span></p>
+            <p>Per Second: <span id="perSecond">0</span></p>
+        </div>
+        <div id="store" class="scrolling-frame">
+            <h2>Store</h2>
+            <ul id="store-list"></ul>
+        </div>
+        <div id="upgrades" class="scrolling-frame">
+            <h2>Upgrades</h2>
+            <ul id="upgrades-list"></ul>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
