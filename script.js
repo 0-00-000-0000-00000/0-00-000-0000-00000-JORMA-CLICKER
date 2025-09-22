@@ -1,270 +1,223 @@
-// Game state
-let score = 0;
-let clickValue = 1;
-let cps = 0;
-let items = {
-    clicker: { count: 0, baseCost: 100, cps: 1 },
-    paskapasi: { count: 0, baseCost: 250, cps: 5 },
-    pirjo: { count: 0, baseCost: 500, cps: 50 }
-};
-let upgrades = [];
-let autoSaveInterval;
-let autoProdInterval;
+// script.js
+let points = 0;
+let perSecond = 0;
+let lastTime = Date.now();
+let clickers = 0;
+let paskaPasi = 0;
+let pirjo = 0;
+let gangJorma = 0;
+let multipliers = 1; // for upgrades
 
-// Available upgrades
-const availableUpgrades = [
-    { name: 'Double Clicks', cost: 1000, condition: () => clickValue === 1, effect: () => { clickValue = 2; } },
-    { name: 'Triple Clicks', cost: 5000, condition: () => clickValue === 2, effect: () => { clickValue = 3; } },
-    { name: 'Clicker Boost', cost: 2000, condition: () => items.clicker.count >= 5, effect: () => { items.clicker.cps *= 2; updateCPS(); } },
-    { name: 'Paska Efficiency', cost: 10000, condition: () => items.paskapasi.count >= 3, effect: () => { items.paskapasi.cps *= 1.5; updateCPS(); } },
-    { name: 'Pirjo Mastery', cost: 50000, condition: () => items.pirjo.count >= 1, effect: () => { items.pirjo.cps *= 2; updateCPS(); } }
+// Upgrades: array of {name, cost, effect, owned: 0}
+const upgrades = [
+    {name: 'Click Power +1', cost: 10, effect: () => multipliers *= 1.1, owned: 0, maxVisible: 100},
+    {name: 'Auto Click +1/sec', cost: 50, effect: () => perSecond += 1, owned: 0, maxVisible: 1000},
+    {name: 'Double Points', cost: 100, effect: () => multipliers *= 2, owned: 0, maxVisible: 10000},
+    {name: 'Click Power +2', cost: 500, effect: () => multipliers *= 1.2, owned: 0, maxVisible: 50000},
+    {name: 'Auto Click +5/sec', cost: 1000, effect: () => perSecond += 5, owned: 0, maxVisible: 100000},
+    // Add more
+    {name: 'Triple Points', cost: 5000, effect: () => multipliers *= 3, owned: 0, maxVisible: 500000},
+    {name: 'Click Power +5', cost: 10000, effect: () => multipliers *= 1.5, owned: 0, maxVisible: 1000000},
+    {name: 'Auto Click +10/sec', cost: 25000, effect: () => perSecond += 10, owned: 0, maxVisible: 2500000},
 ];
 
-// Initialize game
-function init() {
-    try {
-        loadGame();
-        updateDisplay();
-        bindClickEvent();
-        startAutoProduction();
-        startAutoSave();
-    } catch (e) {
-        showError('Failed to initialize game: ' + e.message);
-        console.error('Init error:', e);
-    }
+// Store items
+const storeItems = [
+    {name: 'Cursor', cost: 15, effect: () => {clickers++; perSecond += 0.1;}, owned: 0, image: 'cursor.png'},
+    {name: 'Paska Pasi', cost: 100, effect: () => {paskaPasi++; perSecond += 1;}, owned: 0, image: 'PASKA-PASI.PNG'},
+    {name: 'Pirjo', cost: 500, effect: () => {pirjo++; perSecond += 10;}, owned: 0, image: 'PIRJO.PNG'},
+    {name: 'Gang Jorma', cost: 10000, effect: () => {gangJorma = 1; multipliers *= 4; /* multiply store items */ clickers *= 4; paskaPasi *= 4; pirjo *= 4; perSecond *= 4; }, owned: 0, oneTime: true},
+];
+
+function saveGame() {
+    localStorage.setItem('jormaClicker', JSON.stringify({
+        points, perSecond, clickers, paskaPasi, pirjo, gangJorma, multipliers, upgrades: upgrades.map(u => ({...u, owned: u.owned})), storeItems: storeItems.map(s => ({...s, owned: s.owned})),
+        lastTime
+    }));
 }
 
-// Bind click event to Jorma face
-function bindClickEvent() {
-    const jormaFace = document.getElementById('jorma-face');
-    jormaFace.addEventListener('click', () => {
-        try {
-            clickJorma();
-        } catch (e) {
-            showError('Click failed: ' + e.message);
-            console.error('Click error:', e);
-        }
+function loadGame() {
+    const saved = localStorage.getItem('jormaClicker');
+    if (saved) {
+        const data = JSON.parse(saved);
+        points = data.points || 0;
+        perSecond = data.perSecond || 0;
+        clickers = data.clickers || 0;
+        paskaPasi = data.paskaPasi || 0;
+        pirjo = data.pirjo || 0;
+        gangJorma = data.gangJorma || 0;
+        multipliers = data.multipliers || 1;
+        data.upgrades.forEach((u, i) => { upgrades[i] = {...upgrades[i], owned: u.owned}; });
+        data.storeItems.forEach((s, i) => { storeItems[i] = {...storeItems[i], owned: s.owned}; });
+        lastTime = data.lastTime || Date.now();
+
+        // Offline progress
+        const now = Date.now();
+        const delta = (now - lastTime) / 1000;
+        points += perSecond * delta * multipliers;
+    }
+    updateDisplay();
+    renderStore();
+    renderUpgrades();
+    renderClickers();
+    renderPaskaPasi();
+    renderPirjo();
+    if (gangJorma) renderGangJorma();
+}
+
+function updateDisplay() {
+    document.getElementById('points').textContent = Math.floor(points);
+    document.getElementById('perSecond').textContent = Math.floor(perSecond * multipliers);
+}
+
+function renderStore() {
+    const list = document.getElementById('store-list');
+    list.innerHTML = '';
+    storeItems.forEach(item => {
+        const li = document.createElement('li');
+        const name = document.createElement('span');
+        name.textContent = `${item.name} (${item.owned})`;
+        const costSpan = document.createElement('span');
+        costSpan.className = `cost ${points >= item.cost ? 'affordable' : 'not-affordable'}`;
+        costSpan.textContent = `Cost: ${item.cost}`;
+        li.appendChild(name);
+        li.appendChild(costSpan);
+        li.addEventListener('click', () => buyItem(item));
+        list.appendChild(li);
     });
 }
 
-// Load game from localStorage
-function loadGame() {
-    try {
-        const saved = localStorage.getItem('jormaClickerSave');
-        if (saved) {
-            const data = JSON.parse(saved);
-            score = data.score || 0;
-            clickValue = data.clickValue || 1;
-            items = {
-                clicker: { ...items.clicker, ...data.items?.clicker },
-                paskapasi: { ...items.paskapasi, ...data.items?.paskapasi },
-                pirjo: { ...items.pirjo, ...data.items?.pirjo }
-            };
-            upgrades = data.upgrades || [];
-            applyUpgrades();
-        }
-    } catch (e) {
-        showError('Failed to load game: ' + e.message);
-        console.error('Load error:', e);
-    }
-}
-
-// Save game to localStorage
-function saveGame() {
-    try {
-        const data = {
-            score,
-            clickValue,
-            items,
-            upgrades
-        };
-        localStorage.setItem('jormaClickerSave', JSON.stringify(data));
-    } catch (e) {
-        showError('Failed to save game: ' + e.message);
-        console.error('Save error:', e);
-    }
-}
-
-// Auto-save every 10 seconds
-function startAutoSave() {
-    if (autoSaveInterval) clearInterval(autoSaveInterval);
-    autoSaveInterval = setInterval(saveGame, 10000);
-}
-
-// Apply purchased upgrades
-function applyUpgrades() {
-    try {
-        upgrades.forEach(upgradeName => {
-            const upgrade = availableUpgrades.find(u => u.name === upgradeName);
-            if (upgrade) upgrade.effect();
-        });
-        updateCPS();
-    } catch (e) {
-        showError('Failed to apply upgrades: ' + e.message);
-        console.error('Upgrade apply error:', e);
-    }
-}
-
-// Update display
-function updateDisplay() {
-    try {
-        document.getElementById('score').innerText = Math.floor(score);
-        document.getElementById('clickValue').innerText = clickValue;
-        updateCPS();
-        updateStore();
-        renderUpgrades();
-    } catch (e) {
-        showError('Failed to update display: ' + e.message);
-        console.error('Display error:', e);
-    }
-}
-
-// Update CPS
-function updateCPS() {
-    try {
-        cps = Object.values(items).reduce((total, item) => total + (item.cps * item.count), 0);
-        document.getElementById('cps').innerText = cps.toFixed(1);
-    } catch (e) {
-        showError('Failed to update CPS: ' + e.message);
-        console.error('CPS error:', e);
-    }
-}
-
-// Update store buttons
-function updateStore() {
-    try {
-        Object.keys(items).forEach(type => {
-            const item = items[type];
-            const cost = Math.floor(item.baseCost * Math.pow(1.15, item.count));
-            item.cost = cost;
-            document.getElementById(`count-${type}`).innerText = item.count;
-            document.getElementById(`cost-${type}`).innerText = cost;
-            const button = document.getElementById(`buy-${type}`);
-            button.disabled = score < cost;
-        });
-    } catch (e) {
-        showError('Failed to update store: ' + e.message);
-        console.error('Store error:', e);
-    }
-}
-
-// Render upgrades
-function renderUpgrades() {
-    try {
-        const container = document.getElementById('upgrades');
-        container.innerHTML = '';
-        availableUpgrades.forEach(upgrade => {
-            const isPurchased = upgrades.includes(upgrade.name);
-            const isAvailable = upgrade.condition() && score >= upgrade.cost && !isPurchased;
-            if (isAvailable || isPurchased) {
-                const div = document.createElement('div');
-                div.className = 'upgrade';
-                div.innerHTML = `
-                    <span><strong>${upgrade.name}</strong> - Cost: ${upgrade.cost} Jormas</span>
-                    ${isPurchased ? '<span style="color: green;"> (Purchased)</span>' : ''}
-                    ${isAvailable ? `<button onclick="buyUpgrade('${upgrade.name}')">Buy</button>` : ''}
-                `;
-                container.appendChild(div);
-            }
-        });
-    } catch (e) {
-        showError('Failed to render upgrades: ' + e.message);
-        console.error('Upgrades render error:', e);
-    }
-}
-
-// Buy upgrade
-function buyUpgrade(name) {
-    try {
-        const upgrade = availableUpgrades.find(u => u.name === name);
-        if (upgrade && score >= upgrade.cost && upgrade.condition() && !upgrades.includes(upgrade.name)) {
-            score -= upgrade.cost;
-            upgrades.push(name);
-            upgrade.effect();
-            saveGame();
-            updateDisplay();
-        } else {
-            showError('Cannot buy upgrade: insufficient Jormas or conditions not met.');
-        }
-    } catch (e) {
-        showError('Failed to buy upgrade: ' + e.message);
-        console.error('Upgrade buy error:', e);
-    }
-}
-
-// Click Jorma
-function clickJorma() {
-    try {
-        score += clickValue;
-        document.getElementById('score').innerText = Math.floor(score);
-        saveGame();
+function buyItem(item) {
+    if (points >= item.cost && (!item.oneTime || item.owned === 0)) {
+        points -= item.cost;
+        item.effect();
+        item.owned++;
+        if (item.oneTime) item.owned = 1; // for display
+        item.cost = Math.floor(item.cost * 1.15); // increase cost
         updateDisplay();
-        console.log('Clicked Jorma! Score:', score); // Debug log
-    } catch (e) {
-        showError('Click failed: ' + e.message);
-        console.error('Click error:', e);
+        renderStore();
+        renderUpgrades();
+        renderClickers();
+        renderPaskaPasi();
+        renderPirjo();
+        if (item.name === 'Gang Jorma') renderGangJorma();
+        saveGame();
     }
 }
 
-// Buy item
-function buyItem(type) {
-    try {
-        const item = items[type];
-        const cost = item.cost;
-        if (score >= cost) {
-            score -= cost;
-            item.count++;
-            updateDisplay();
-            saveGame();
-            startAutoProduction();
-        } else {
-            showError('Not enough Jormas to buy ' + type + '!');
-        }
-    } catch (e) {
-        showError('Failed to buy item: ' + e.message);
-        console.error('Buy item error:', e);
+function renderUpgrades() {
+    const list = document.getElementById('upgrades-list');
+    list.innerHTML = '';
+    upgrades.filter(u => points > u.cost / 1000 || u.owned > 0).forEach(u => { // hide until close
+        const li = document.createElement('li');
+        const name = document.createElement('span');
+        name.textContent = `${u.name} (Owned: ${u.owned}) - Next cost: ${u.cost}`;
+        const costSpan = document.createElement('span');
+        costSpan.className = `cost ${points >= u.cost ? 'affordable' : 'not-affordable'}`;
+        li.appendChild(name);
+        li.appendChild(costSpan);
+        li.addEventListener('click', () => buyUpgrade(u));
+        list.appendChild(li);
+    });
+}
+
+function buyUpgrade(u) {
+    if (points >= u.cost) {
+        points -= u.cost;
+        u.effect();
+        u.owned++;
+        u.cost = Math.floor(u.cost * 1.15);
+        updateDisplay();
+        renderUpgrades();
+        renderStore();
+        saveGame();
     }
 }
 
-// Start auto-production
-function startAutoProduction() {
-    try {
-        if (autoProdInterval) clearInterval(autoProdInterval);
-        autoProdInterval = setInterval(() => {
-            let produced = 0;
-            Object.values(items).forEach(item => {
-                produced += item.cps * item.count / 10;
-            });
-            score += produced;
-            document.getElementById('score').innerText = Math.floor(score);
-            updateDisplay();
-        }, 100);
-    } catch (e) {
-        showError('Failed to start auto-production: ' + e.message);
-        console.error('Auto-production error:', e);
+function renderClickers() {
+    const container = document.getElementById('clickers');
+    container.innerHTML = '';
+    for (let i = 0; i < clickers; i++) {
+        const img = document.createElement('img');
+        img.src = 'cursor.png';
+        img.className = 'clicker';
+        const angle = (i / clickers) * Math.PI * 2;
+        const radius = 100 + (Math.floor(i / 10) * 50); // circles every 10
+        img.style.left = `calc(50% + ${Math.cos(angle) * radius}px)`;
+        img.style.top = `calc(50% + ${Math.sin(angle) * radius}px)`;
+        container.appendChild(img);
+        // Animate click periodically
+        setTimeout(() => img.classList.add('clicking'), Math.random() * 1000);
+        setTimeout(() => img.classList.remove('clicking'), Math.random() * 1000 + 500);
     }
 }
 
-// Show error message
-function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.innerText = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
-}
-
-// Reset game
-function resetGame() {
-    try {
-        if (confirm('Are you sure? This will delete all progress!')) {
-            localStorage.removeItem('jormaClickerSave');
-            location.reload();
-        }
-    } catch (e) {
-        showError('Failed to reset game: ' + e.message);
-        console.error('Reset error:', e);
+function renderPaskaPasi() {
+    const container = document.getElementById('paska-pasis');
+    container.innerHTML = '';
+    for (let i = 0; i < paskaPasi; i++) {
+        const img = document.createElement('img');
+        img.src = 'PASKA-PASI.PNG';
+        img.className = 'paska-pasi';
+        img.style.left = `${(i % 5) * 25}px`;
+        img.style.bottom = `${-(Math.floor(i / 5)) * 25}px`;
+        container.appendChild(img);
     }
 }
 
-// Start game
-window.onload = init;
+function renderPirjo() {
+    const pirjoImg = document.getElementById('pirjo');
+    if (pirjo > 0) {
+        pirjoImg.style.display = 'block';
+        // Animate hitting
+        setInterval(() => {
+            pirjoImg.classList.add('hitting');
+            setTimeout(() => pirjoImg.classList.remove('hitting'), 500);
+        }, 2000);
+    } else {
+        pirjoImg.style.display = 'none';
+    }
+}
+
+function renderGangJorma() {
+    const jorma = document.getElementById('jorma');
+    const text = document.getElementById('badass-text');
+    if (gangJorma > 0) {
+        jorma.style.width = '300px';
+        jorma.style.height = '300px';
+        text.style.display = 'block';
+    } else {
+        jorma.style.width = '200px';
+        jorma.style.height = '200px';
+        text.style.display = 'none';
+    }
+}
+
+document.getElementById('jorma').addEventListener('click', (e) => {
+    points += 1 * multipliers;
+    updateDisplay();
+    renderStore();
+    renderUpgrades();
+    saveGame();
+    // Click animation
+    e.target.style.transform = 'scale(0.95)';
+    setTimeout(() => e.target.style.transform = 'scale(1)', 100);
+});
+
+function gameLoop() {
+    const now = Date.now();
+    const delta = (now - lastTime) / 1000;
+    points += perSecond * delta * multipliers;
+    lastTime = now;
+    updateDisplay();
+    renderStore();
+    renderUpgrades();
+    saveGame();
+    requestAnimationFrame(gameLoop);
+}
+
+loadGame();
+gameLoop();
+
+// Auto save every 30s
+setInterval(saveGame, 30000);
