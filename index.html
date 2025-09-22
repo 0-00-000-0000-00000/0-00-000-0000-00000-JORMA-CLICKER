@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jorma Clicker - Fixed & Improved</title>
+    <title>Jorma Clicker - Enhanced Edition</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="game-container">
         <h1>Jorma Clicker</h1>
-        <img id="jorma-face" src="jorma_face.png" alt="Jorma Face" title="Click me, Jorma!">
+        <div id="jorma-container">
+            <img id="jorma-face" src="jorma_face.png" alt="Jorma Face" title="Click me, Jorma!">
+            <div id="badass-text" style="display: none;">BADASS JORMA</div>
+            <div id="cursor-circle"></div>
+            <div id="cursor-circle-outer"></div>
+            <div id="paska-pasi-container"></div>
+            <div id="pirjo-container"></div>
+        </div>
         <p>Score: <span id="score">0</span> Jormas</p>
         <p>Jormas per Click: <span id="clickValue">1</span></p>
         <p>Jormas per Second: <span id="cps">0</span></p>
@@ -26,12 +33,15 @@
             <div class="item">
                 <button id="buy-pirjo" onclick="buyItem('pirjo')">Buy Pirjo (Cost: <span id="cost-pirjo">500</span> Jormas) - Owned: <span id="count-pirjo">0</span></button>
             </div>
+            <div class="item">
+                <button id="buy-gangjorma" onclick="buyItem('gangjorma')">Buy Gang Jorma (Cost: <span id="cost-gangjorma">10000</span> Jormas) - Owned: <span id="count-gangjorma">0</span></button>
+            </div>
         </div>
 
         <h2>Upgrades</h2>
-        <div id="upgrades"></div>
+        <div id="upgrades" class="upgrades-scroll"></div>
 
-        <button onclick="resetGame()" style="margin-top: 20px; padding: 10px; background: #ff4444; color: white; border: none; border-radius: 5px;">Reset Game (Lose all progress!)</button>
+        <button onclick="resetGame()" class="reset-button">Reset Game (Lose all progress!)</button>
     </div>
     <script src="script.js"></script>
 </body>
